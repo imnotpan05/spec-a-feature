@@ -4919,3 +4919,61 @@ File names include document type and team identifier.
 **Related Use Cases:** UC-AI-critique: Request a critique from the critique assistant; UC-AI-consult-project-assistant: Consult the project assistant; UC-CFG-configure-review-criteria: Configure the cross-document review criteria for a course section; UC-VAL-run-validation: Run validation (ReqLint) on the current document; UC-AI-review-proposal: Review and accept or reject an assistant proposal; UC-DOC-edit-document: Edit a section-based requirement document; UC-DOC-edit-use-case: Edit a use case.
 **Assumptions:**
 **Open Issues:**
+
+
+
+
+### **UC-EVA-nudge-non-submitters: The student submits a peer evaluation for the previous week**
+
+**UC ID and Name:** UC-EVA-submit-evaluation: Nudge only non-submitters for Artifacts. 
+**Created By:**
+**Date Created:**
+**Primary Actor:** Instructor
+**Secondary Actors:**
+**Trigger:** Instructor clicks the "Send Nudge" button for a specific artifact (WAR or EVA) on their section dashboard.
+**Description:** The instructor manually triggers a reminder email to students within their course section who have not yet submitted the specified artifact for the current week.
+
+**Preconditions:**
+- Instructor is authenticated and authorized to manage the specified course section (`BR-section-scoped-access`).
+- The current week is an active week for the section (`BR-active-weeks`).
+- The submission window for the specified artifact is currently open.
+
+**Postconditions:**
+- Reminder emails are dispatched to all non-submitters in the section.
+- The system logs the dispatch event to enforce frequency limits.
+
+**Main Success Scenario:**
+1. Instructor initiates a manual nudge for a specific artifact (WAR or EVA) from the section dashboard.
+2. System verifies the section's active week status and the artifact's open submission window.
+3. System retrieves the roster of students in the instructor's section.
+4. System filters the roster to identify eligible non-submitters (students who possess a team assignment and lack a finalized, non-deleted submission record for the specified artifact).
+5. System verifies the manual nudge frequency limit has not been exceeded.
+6. System dispatches a reminder email to each identified non-submitter.
+7. System logs the dispatch event and displays a success confirmation to the instructor detailing the total number of reminder emails successfully sent.
+
+**Extensions:**
+- **2a. The current week is not an active week (`BR-active-weeks`):** System aborts the operation and displays an error indicating nudges cannot be sent during inactive weeks.
+- **2b. The submission window for the specified artifact has closed:** System aborts the operation and displays an error indicating the deadline has passed.
+- **4a. A student is not assigned to a team (`BR-team-assignment-required`):** System deems the student ineligible to submit; they are excluded from the nudge list and ignored.
+- **4b. A student submitted the artifact but subsequently deleted it:** A student submitted the artifact but subsequently deleted it (record exists but is flagged as deleted)
+- **5a. The instructor has already triggered a nudge for this artifact recently (`BR-nudge-frequency-limit`):** System aborts the operation and displays an error indicating the frequency limit has been reached.
+
+- **6a. The mail server rejects a student's email address:** System logs the delivery failure and continues processing the remaining students in the list without aborting.
+
+
+**Priority:** Medium
+
+**Frequency of Use:** 1-2 times per week per section, during an active submission window.
+
+**Business Rules:** BR-section-scoped-access (instructor only manages their assigned section), BR-active-weeks (nudges cannot be sent during break weeks), BR-team-assignment-required (only a student assigned to a team is eligible to be nudged), CO-ferpa (submission status is a protected student record), BR-nudge-frequency-limit (an instructor may manually trigger a nudge for a specific artifact a maximum of one time per 24-hour period per course section)
+
+**Associated Information:**
+
+* **Email Delivery:** Nudge emails are dispatched individually to each student. Under `CO-ferpa`, students must not be able to see who else received the reminder (i.e., no CC or BCC lists that expose recipients).
+* **Email Content:** The system uses a standard, hardcoded template for the reminder indicating the specific artifact (Weekly Activity Report or Peer Evaluation), the section name, and the upcoming deadline.
+
+**Assumptions:**
+* It is assumed that all students assigned to the section have valid, deliverable email addresses stored in their user profiles.
+* It is assumed the system's mail service is configured and generally available to dispatch outgoing messages.
+* It is assumed that "deleted" submissions are entirely removed from the view or marked in a way that standard database queries for "finalized submissions" will not return them.
+**Open Issues:**
