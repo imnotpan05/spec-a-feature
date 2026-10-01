@@ -4949,14 +4949,17 @@ File names include document type and team identifier.
 4. System filters the roster to identify eligible non-submitters (students who possess a team assignment and lack a finalized, non-deleted submission record for the specified artifact).
 5. System verifies the manual nudge frequency limit has not been exceeded.
 6. System dispatches a reminder email to each identified non-submitter.
-7. System logs the dispatch event and displays a success confirmation to the instructor.
+7. System logs the dispatch event and displays a success confirmation to the instructor detailing the total number of reminder emails successfully sent.
 
 **Extensions:**
 - **2a. The current week is not an active week (`BR-active-weeks`):** System aborts the operation and displays an error indicating nudges cannot be sent during inactive weeks.
 - **2b. The submission window for the specified artifact has closed:** System aborts the operation and displays an error indicating the deadline has passed.
 - **4a. A student is not assigned to a team (`BR-team-assignment-required`):** System deems the student ineligible to submit; they are excluded from the nudge list and ignored.
-- **4b. A student submitted the artifact but subsequently deleted it:** System evaluates the student as lacking a finalized record and includes them in the nudge list.
+- **4b. A student submitted the artifact but subsequently deleted it:** A student submitted the artifact but subsequently deleted it (record exists but is flagged as deleted)
+- **5a. The instructor has already triggered a nudge for this artifact recently (`BR-nudge-frequency-limit`):** System aborts the operation and displays an error indicating the frequency limit has been reached.
+
 - **6a. The mail server rejects a student's email address:** System logs the delivery failure and continues processing the remaining students in the list without aborting.
+
 
 **Priority:** Medium
 
